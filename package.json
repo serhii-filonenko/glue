@@ -1,7 +1,7 @@
 {
 	"name": "Glue",
-	"version": "0.1.14",
-	"versionDate": "2021-05-11",
+	"version": "0.1.15",
+	"versionDate": "2021-05-14",
 	"author": "hackolade",
 	"engines": {
 		"hackolade": "3.5.5",
