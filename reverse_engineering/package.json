@@ -4,7 +4,9 @@
   "description": "",
   "author": "Hackolade",
   "dependencies": {
-    "aws-sdk": "^2.589.0"
+    "aws-sdk": "^2.589.0",
+    "antlr4": "^4.8.0"
   },
+  "type": "multi",
   "installed": true
 }
