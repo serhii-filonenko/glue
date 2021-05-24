@@ -8,6 +8,13 @@ const https = require('https');
 this.glueInstance = null;
 const { setDependencies, dependencies } = require('./appDependencies');
 
+const antlr4 = require('antlr4');
+const HiveLexer = require('./parser/HiveLexer.js');
+const HiveParser = require('./parser/HiveParser.js');
+const hqlToCollectionsVisitor = require('./hqlToCollectionsVisitor.js');
+const commandsService = require('./commandsService');
+const ExprErrorListener = require('./antlrErrorListener');
+
 module.exports = {
 	connect: async (connectionInfo, logger, cb, app) => {
 		setDependencies(app);
@@ -120,7 +127,57 @@ module.exports = {
 		};
 
 		getDbCollections();
-	}
+	},
+
+	reFromFile: async (data, logger, callback, app) => {
+		try {
+			setDependencies(app);
+			const _ = dependencies.lodash;
+			const input = await handleFileData(data.filePath);
+			const chars = new antlr4.InputStream(input);
+			const lexer = new HiveLexer.HiveLexer(chars);
+
+			const tokens = new antlr4.CommonTokenStream(lexer);
+			const parser = new HiveParser.HiveParser(tokens);
+			parser.removeErrorListeners();
+			parser.addErrorListener(new ExprErrorListener());
+
+			const tree = parser.statements();
+
+			const hqlToCollectionsGenerator = new hqlToCollectionsVisitor();
+
+			const commands = tree.accept(hqlToCollectionsGenerator);
+			const { result, info, relationships } = commandsService.convertCommandsToReDocs(
+                _.flatten(commands).filter(Boolean),
+                input
+            );
+			callback(null, result, info, relationships, 'multipleSchema');
+		} catch(err) {
+			const { error, title, name } = err;
+			const handledError = handleErrorObject(error || err, title || name);
+			logger.log('error', handledError, title);
+			callback(handledError);
+		}
+	},
+};
+
+const handleFileData = filePath => {
+	return new Promise((resolve, reject) => {
+
+		fs.readFile(filePath, 'utf-8', (err, content) => {
+			if(err) {
+				reject(err);
+			} else {
+				resolve(content);
+			}
+		});
+	});
+};
+
+const handleErrorObject = (error, title) => {
+	const errorProperties = Object.getOwnPropertyNames(error).reduce((accumulator, key) => ({ ...accumulator, [key]: error[key] }), {});
+
+	return { title , ...errorProperties };
 };
 
 const mapTableData = ({ Table }, dbDescription) => {

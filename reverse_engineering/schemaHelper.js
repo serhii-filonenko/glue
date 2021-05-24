@@ -289,8 +289,26 @@ const setProperty = (columnName, subSchema, jsonSchema) => {
 	return jsonSchema;
 };
 
+const getArraySubtypeByType = (type) => {
+	const subtype = (type) => `array<${type}>`;
+	switch(type) {
+		case "text": return subtype("txt");
+		case "numeric": return subtype("num");
+		case "timestamp": return subtype("ts");
+		case "date": return subtype("date");
+		case "interval": return subtype("intrvl");
+		case "array": return subtype("array");
+		case "map": return subtype("map");
+		case "struct": return subtype("struct");
+		case "union": return subtype("union");
+	}
+};
+
 module.exports = {
 	getJsonSchema,
 	getChoice,
-	setProperty
+	setProperty,
+	getMapKeyType,
+	getMapSubtype,
+	getArraySubtypeByType,
 };
