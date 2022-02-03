@@ -210,10 +210,10 @@ const composeCLIStatements = (statements = []) => {
 const buildHiveScript = (needMinify) => (...statements) => {
 	const script = statements.filter(statement => statement).join('\n\n');
 	if(needMinify) {
-		return script;
+		return script + '\n';
 	}
 
-	return sqlFormatter.format(script, { indent: '    ' });
+	return sqlFormatter.format(script, { indent: '    ' }) + '\n';
 };
 
 const parseEntities = (entities, serializedItems) => {
