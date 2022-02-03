@@ -18,6 +18,7 @@
 		{
 			"name": "HiveQL Script",
 			"keyword": "hiveQl",
+			"mode": "sql",
 			"disableApplyScriptToInstance": true,
 			"fileExtensions": [{
 				"label": "application/hql", "value": "hql"
