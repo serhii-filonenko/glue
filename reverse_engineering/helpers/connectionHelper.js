@@ -88,9 +88,20 @@ const createInstance = (connection, _) => {
         return db.Database.Description;
     };
 
+    const getTableList = async (dbName, nextToken) => {
+        const tableListResponse = await connection.getTables({ DatabaseName: dbName, ...(nextToken && { NextToken: nextToken}) }).promise();
+
+        let nextTableList = [];
+        if (tableListResponse.NextToken) {
+            nextTableList = await getTableList(dbName, tableListResponse.NextToken);
+        }
+
+        return [ ...tableListResponse.TableList, ...nextTableList ];
+    };
+
     const getTables = async (dbName) => {
-        const dbCollectionsData = await connection.getTables({ DatabaseName: dbName }).promise();
-        return dbCollectionsData.TableList.map(({ Name }) => Name);
+        const dbCollectionsData = await getTableList(dbName);
+        return dbCollectionsData.map(({ Name }) => Name);
     };
 
     const getTable = async (dbName, tableName) => {
