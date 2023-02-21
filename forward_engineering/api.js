@@ -123,7 +123,7 @@ module.exports = {
 			const script = buildAWSCLIModelScript(containerData, jsonSchema);
 			return callback(null, script);
 		} catch (e) {
-			logger.log('error', { message: e.message, stack: e.stack }, 'Cassandra Forward-Engineering Error');
+			logger.log('error', { message: e.message, stack: e.stack }, 'Glue Forward-Engineering Error');
 
 			setTimeout(() => {
 				callback({ message: e.message, stack: e.stack });
