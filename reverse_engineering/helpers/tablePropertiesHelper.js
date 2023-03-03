@@ -55,6 +55,10 @@ const mapTableProperties = (parameters = {}) => {
     }, []);
 }
 
+const getNumBuckets = (numBuckets) => {
+    return numBuckets < 1 ? undefined : numBuckets;
+}
+
 const mapTableData = (tableData, _) => {
     const partitionKeys = tableData.Table.PartitionKeys || [];
 
@@ -69,7 +73,7 @@ const mapTableData = (tableData, _) => {
             sortedByKey: mapSortColumns(tableData.Table.StorageDescriptor.SortColumns),
             compressed: tableData.Table.StorageDescriptor.Compressed,
             location: tableData.Table.StorageDescriptor.Location,
-            numBuckets: tableData.Table.StorageDescriptor.NumberOfBuckets,
+            numBuckets: getNumBuckets(tableData.Table.StorageDescriptor.NumberOfBuckets),
             StoredAsSubDirectories: tableData.Table.StorageDescriptor.StoredAsSubDirectories,
             inputFormatClassname: tableData.Table.StorageDescriptor.InputFormat,
             outputFormatClassname: tableData.Table.StorageDescriptor.OutputFormat,

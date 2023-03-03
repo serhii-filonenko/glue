@@ -23,8 +23,8 @@ const getCreateStatement = ({
 		(comment, `COMMENT '${comment}'`)
 		(partitionedByKeys,  commentStatementIfAllKeysDeactivated(`PARTITIONED BY (${partitionedByKeys.keysString})`, partitionedByKeys))
 		(clusteredKeys, commentStatementIfAllKeysDeactivated(`CLUSTERED BY (${clusteredKeys.keysString})`, clusteredKeys))
-		(sortedKeys, commentStatementIfAllKeysDeactivated(`SORTED BY (${sortedKeys.keysString})`, sortedKeys))
-		(numBuckets, `INTO ${numBuckets} BUCKETS`)
+		(sortedKeys && clusteredKeys, commentStatementIfAllKeysDeactivated(`SORTED BY (${sortedKeys.keysString})`, sortedKeys))
+		(isNumBucketsValid(numBuckets) && clusteredKeys, `INTO ${numBuckets} BUCKETS`)
 		(skewedStatement, skewedStatement)
 		(rowFormatStatement, `ROW FORMAT ${rowFormatStatement}`)
 		(storedAsStatement, storedAsStatement)
@@ -182,6 +182,10 @@ const getTableProperties = (properties) => {
 	}
 	return `(${properties.map(prop => `"${prop.tablePropKey}"="${prop.tablePropValue}"`).join(', ')})`;
 }
+
+const isNumBucketsValid = (numBuckets) => {
+	return numBuckets && numBuckets > 0;
+};
 
 const getTableStatement = (containerData, entityData, jsonSchema, definitions, foreignKeyStatement) => {
 	const dbName = replaceSpaceWithUnderscore(getName(getTab(0, containerData)));
