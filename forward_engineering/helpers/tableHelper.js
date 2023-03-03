@@ -14,6 +14,7 @@ const getCreateStatement = ({
 	const external = isExternal ? 'EXTERNAL' : '';
 	const tempExtStatement = ' ' + [temporary, external].filter(d => d).map(item => item + ' ').join('');
 	const fullTableName = dbName ? `${dbName}.${tableName}` : tableName;
+	const hasClusteredBy = clusteredKeys && isNumBucketsValid(numBuckets);
 
 	return buildStatement(`CREATE${tempExtStatement}TABLE IF NOT EXISTS ${fullTableName} (`, isActivated)
 		(columnStatement, indentString(columnStatement + (primaryKeyStatement ? ',' : '')))
@@ -22,9 +23,9 @@ const getCreateStatement = ({
 		(true, ')')
 		(comment, `COMMENT '${comment}'`)
 		(partitionedByKeys,  commentStatementIfAllKeysDeactivated(`PARTITIONED BY (${partitionedByKeys.keysString})`, partitionedByKeys))
-		(clusteredKeys, commentStatementIfAllKeysDeactivated(`CLUSTERED BY (${clusteredKeys.keysString})`, clusteredKeys))
-		(sortedKeys && clusteredKeys, commentStatementIfAllKeysDeactivated(`SORTED BY (${sortedKeys.keysString})`, sortedKeys))
-		(isNumBucketsValid(numBuckets) && clusteredKeys, `INTO ${numBuckets} BUCKETS`)
+		(hasClusteredBy, commentStatementIfAllKeysDeactivated(`CLUSTERED BY (${clusteredKeys.keysString})`, clusteredKeys))
+		(sortedKeys && hasClusteredBy, commentStatementIfAllKeysDeactivated(`SORTED BY (${sortedKeys.keysString})`, sortedKeys))
+		(hasClusteredBy, `INTO ${numBuckets} BUCKETS`)
 		(skewedStatement, skewedStatement)
 		(rowFormatStatement, `ROW FORMAT ${rowFormatStatement}`)
 		(storedAsStatement, storedAsStatement)
