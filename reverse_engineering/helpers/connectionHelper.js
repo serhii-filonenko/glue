@@ -78,6 +78,10 @@ const close = () => {
     if (connection) {
         connection = null;
     }
+
+    if (databaseLoadContinuationToken) {
+        databaseLoadContinuationToken = null;
+    }
 };
 
 const createInstance = (connection, _) => {
