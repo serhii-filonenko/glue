@@ -123,7 +123,7 @@ module.exports = {
 			const script = buildAWSCLIModelScript(containerData, jsonSchema);
 			return callback(null, script);
 		} catch (e) {
-			logger.log('error', { message: e.message, stack: e.stack }, 'Cassandra Forward-Engineering Error');
+			logger.log('error', { message: e.message, stack: e.stack }, 'Glue Forward-Engineering Error');
 
 			setTimeout(() => {
 				callback({ message: e.message, stack: e.stack });
@@ -198,8 +198,8 @@ const buildAWSCLIModelScript = (containerData, tablesSchemas = {}) => {
 }
 
 const getGlueInstance = (connectionInfo, app) => {
-	const { accessKeyId, secretAccessKey, region } = connectionInfo;
-	aws.config.update({ accessKeyId, secretAccessKey, region });
+	const { accessKeyId, secretAccessKey, region, sessionToken } = connectionInfo;
+	aws.config.update({ accessKeyId, secretAccessKey, region, sessionToken });
 	return new aws.Glue();
 }
 
@@ -210,10 +210,10 @@ const composeCLIStatements = (statements = []) => {
 const buildHiveScript = (needMinify) => (...statements) => {
 	const script = statements.filter(statement => statement).join('\n\n');
 	if(needMinify) {
-		return script;
+		return script + '\n';
 	}
 
-	return sqlFormatter.format(script, { indent: '    ' });
+	return sqlFormatter.format(script, { indent: '    ' }) + '\n';
 };
 
 const parseEntities = (entities, serializedItems) => {

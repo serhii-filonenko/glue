@@ -347,7 +347,7 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "numBuckets",
 				"propertyType": "numeric",
 				"valueType": "number",
-				"allowNegative": true
+				"allowNegative": false
 			},
 			{
 				"propertyName": "Skewed by",

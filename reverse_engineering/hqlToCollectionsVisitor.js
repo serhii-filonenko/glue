@@ -126,7 +126,7 @@ class Visitor extends HiveParserVisitor {
                         ...storedAsTable,
                         ...tableRowFormat,
                     },
-                    (prop) => _.isBoolean(prop) || !_.isEmpty(prop)
+                    (prop) => _.isNumber(prop) || _.isBoolean(prop) || !_.isEmpty(prop)
                 ),
             },
             ...tableForeignKeys.map((fkData) => ({
@@ -449,7 +449,7 @@ class Visitor extends HiveParserVisitor {
         return {
             type: UPDATE_ENTITY_LEVEL_DATA_COMMAND,
             data: {
-                numBuckets: ctx.Number().getText(),
+                numBuckets: Number(ctx.Number().getText()),
             },
         };
     }
