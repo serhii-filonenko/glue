@@ -4,6 +4,9 @@ const https = require('https');
 const {mapTableData} = require("./tablePropertiesHelper");
 
 let connection;
+let databaseLoadContinuationToken;
+
+const MAX_RESULTS = 100;
 
 const readCertificateFile = path => {
     if (!path) {
@@ -75,12 +78,22 @@ const close = () => {
     if (connection) {
         connection = null;
     }
+
+    if (databaseLoadContinuationToken) {
+        databaseLoadContinuationToken = null;
+    }
 };
 
 const createInstance = (connection, _) => {
     const getDatabases = async () => {
-        const dbsData = await connection.getDatabases().promise();
-        return dbsData.DatabaseList;
+        const dbsData = await connection.getDatabases({ MaxResults: MAX_RESULTS, NextToken: databaseLoadContinuationToken }).promise();
+
+        databaseLoadContinuationToken = dbsData.NextToken ? dbsData.NextToken : null;
+
+        return {
+            databaseList: dbsData.DatabaseList,
+            isFullyUploaded: !Boolean(dbsData.NextToken),
+        };
     };
 
     const getDatabaseDescription = async (dbName) => {

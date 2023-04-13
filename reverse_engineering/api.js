@@ -49,7 +49,7 @@ module.exports = {
 		try {
 			const connection = await this.connect(connectionInfo);
 			const instance = connectionHelper.createInstance(connection, dependencies.lodash);
-			const databaseList = await instance.getDatabases();
+			const { databaseList, isFullyUploaded } = await instance.getDatabases();
 			const dbsCollections = databaseList.map(async db => {
 				const dbCollections = await instance.getTables(db.Name);
 				return {
@@ -58,8 +58,19 @@ module.exports = {
 					isEmpty: dbCollections.length === 0
 				};
 			});
+
 			const result = await Promise.all(dbsCollections);
-			cb(null, result);
+
+			if (isFullyUploaded) {
+				return cb(null, result);
+			}
+
+			const loadMore = {
+				dbName: 'Load more',
+				loadMore: true,
+			};
+
+			cb(null, [ ...result, loadMore ]);
 		} catch(err) {
 			logger.log(
 				'error',
